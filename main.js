@@ -4,6 +4,7 @@ const os = require("node:os");
 const fs = require("node:fs");
 const path = require("node:path");
 const nbt = require("nbt");
+const clipboard = require("clipboardy");
 
 const unzip = promisify(zlib.unzip);
 const deflate = promisify(zlib.deflate);
@@ -392,3 +393,25 @@ let validEntries;
 do {
   validEntries = await placeFileBlocks();
 } while (validEntries > 0);
+
+console.log("Listening for clipboard changes...");
+
+let clipboardLast = "";
+setInterval(async function () {
+
+  const text = await clipboard.default.read();
+  if (text === clipboardLast) return;
+  clipboardLast = text;
+
+  if (!text.startsWith("/execute in minecraft:overworld run tp @s")) return;
+
+  const [x, y, z] = text.split("@s ")[1].split(" ").map(c => Math.floor(Number(c)));
+  const entry = mapping.find(c => c.x === x && c.y === y - 1 && c.z === z);
+
+  if (!entry) {
+    console.log("No file associated with this block.");
+  } else {
+    console.log(entry.file);
+  }
+
+}, 200);
