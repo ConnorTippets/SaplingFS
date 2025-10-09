@@ -36,6 +36,25 @@ const parentDepth = 3;
 
 let min_x = 0, max_x = 0, min_z = 0, max_z = 0;
 
+const debugPalette = [
+  "white_wool",
+  "light_gray_wool",
+  "gray_wool",
+  "black_wool",
+  "brown_wool",
+  "red_wool",
+  "orange_wool",
+  "yellow_wool",
+  "lime_wool",
+  "green_wool",
+  "cyan_wool",
+  "light_blue_wool",
+  "blue_wool",
+  "purple_wool",
+  "magenta_wool",
+  "pink_wool"
+];
+
 const suppressMaxIterations = 500;
 let suppressFor = Math.floor(Math.random() * suppressMaxIterations);
 let suppressDirection = Math.floor(Math.random() * 4);
@@ -76,7 +95,13 @@ while (fileList.length > 0 && nodes.length > 0) {
   }
   lastParent = shortParent;
 
-  mapping[key] = { x, y, z, file, group: terrainGroup, valid: true };
+  let block;
+  if (debug) {
+    block = debugPalette[terrainGroup % debugPalette.length];
+  } else {
+    block = "grass_block";
+  }
+  mapping[key] = { x, y, z, file, block, valid: true };
 
   if (Math.random() < 0.05) nodes.push([x, y + 1, z]);
   if (y > -64 && Math.random() < 0.05) nodes.push([x, y - 1, z]);
@@ -89,25 +114,6 @@ while (fileList.length > 0 && nodes.length > 0) {
 }
 
 console.log(`${fileList.length} files left unallocated`);
-
-const debugPalette = [
-  "white_wool",
-  "light_gray_wool",
-  "gray_wool",
-  "black_wool",
-  "brown_wool",
-  "red_wool",
-  "orange_wool",
-  "yellow_wool",
-  "lime_wool",
-  "green_wool",
-  "cyan_wool",
-  "light_blue_wool",
-  "blue_wool",
-  "purple_wool",
-  "magenta_wool",
-  "pink_wool"
-];
 
 async function placeFileBlocks () {
 
@@ -145,12 +151,7 @@ async function placeFileBlocks () {
     if (_x !== Math.floor(entry.x / 16)) continue;
     if (_z !== Math.floor(entry.z / 16)) continue;
 
-    if (debug) {
-      const block = debugPalette[entry.group % debugPalette.length];
-      blocks[entry.x - _x * 16][entry.y + 64][entry.z - _z * 16] = block;
-    } else {
-      blocks[entry.x - _x * 16][entry.y + 64][entry.z - _z * 16] = "grass_block";
-    }
+    blocks[entry.x - _x * 16][entry.y + 64][entry.z - _z * 16] = entry.block;
 
     entry.valid = false;
     validEntries --;
@@ -158,12 +159,15 @@ async function placeFileBlocks () {
 
   const countAdjacent = function (x, y, z) {
     let adjacent = 0;
-    if (x > 0 && blocks[x - 1][y][z] !== "air") adjacent ++;
-    if (x < 15 && blocks[x + 1][y][z] !== "air") adjacent ++;
-    if (y > -64 && blocks[x][y - 1][z] !== "air") adjacent ++;
-    if (y < 128 + 63 && blocks[x][y + 1][z] !== "air") adjacent ++;
-    if (z > 0 && blocks[x][y][z - 1] !== "air") adjacent ++;
-    if (z < 15 && blocks[x][y][z + 1] !== "air") adjacent ++;
+    x += _x * 16;
+    z += _z * 16;
+    y -= 64;
+    if (`${x + 1},${y},${z}` in mapping) adjacent ++;
+    if (`${x - 1},${y},${z}` in mapping) adjacent ++;
+    if (`${x},${y + 1},${z}` in mapping) adjacent ++;
+    if (`${x},${y - 1},${z}` in mapping) adjacent ++;
+    if (`${x},${y},${z + 1}` in mapping) adjacent ++;
+    if (`${x},${y},${z - 1}` in mapping) adjacent ++;
     return adjacent;
   };
 
@@ -174,10 +178,10 @@ async function placeFileBlocks () {
         if (blocks[x][y][z] === "air") continue;
 
         const adjacent = countAdjacent(x, y, z);
-        if (adjacent >= 3) continue;
+        if (adjacent > 2) continue;
 
         const block = blocks[x][y][z];
-        const key = `${x},${y},${z}`;
+        const key = `${x + _x * 16},${y - 64},${z + _z * 16}`;
         blocks[x][y][z] = "air";
 
         const directions = [
@@ -187,17 +191,20 @@ async function placeFileBlocks () {
           [0, -1]
         ];
 
+        let found = false;
         for (const [dx, dz] of directions) {
           const cx = x + dx, cz = z + dz;
           if (blocks[cx]?.[y]?.[cz] === "air" && countAdjacent(cx, y, cz) > adjacent) {
             blocks[cx][y][cz] = block;
             if (key in mapping) {
-              mapping[`${cx},${y},${cz}`] = mapping[key];
+              mapping[`${cx + _x * 16},${y - 64},${cz + _z * 16}`] = mapping[key];
               delete mapping[key];
             }
+            found = true;
             break;
           }
         }
+        if (!found) blocks[x][y][z] = block;
 
       }
     }
