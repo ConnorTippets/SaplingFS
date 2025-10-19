@@ -73,7 +73,7 @@ function isHeavyBlock (block) {
   return (
     isGroundBlock(block) ||
     block === "oak_log" ||
-    block === "water" ||
+    block === "water"
   );
 }
 
