@@ -63,13 +63,18 @@ const debugPalette = [
 function isGroundBlock (block) {
   return (
     block === "dirt" ||
-    block === "grass_block"
+    block === "grass_block" ||
+    block === "stone"
   );
 }
 
 // Whether grass converts to dirt under this block
 function isHeavyBlock (block) {
-  return isGroundBlock(block) || block === "water";
+  return (
+    isGroundBlock(block) ||
+    block === "oak_log" ||
+    block === "water" ||
+  );
 }
 
 function isAir (block) {
@@ -421,6 +426,16 @@ await forMappedChunks(async function (blocks, entries, _x, _z, bounds) {
     const blockAbove = mapping[entry.pos.add(0, 1, 0).toString()];
     if (entry.block === "grass_block" && isHeavyBlock(blockAbove?.block)) {
       entry.block = "dirt";
+      // Convert deeply submerged blocks to stone
+      let submerged = true;
+      for (let i = 1; i <= 3; i ++) {
+        const currBlock = mapping[entry.pos.add(0, i, 0).toString()]?.block;
+        if (!isGroundBlock(currBlock)) {
+          submerged = false;
+          break;
+        }
+      }
+      if (submerged) entry.block = "stone";
     }
     // Convert lonely blocks in ponds to water
     let waterAdjacent = 0;
