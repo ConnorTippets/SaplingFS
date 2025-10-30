@@ -11,7 +11,6 @@ async function getHandleOwners (path) {
     const { stdout, stderr } = await $`lsof -F p "${path}"`.quiet();
     return stdout.trim().split("\n").map(c => parseInt(c.slice(1), 10));
   } catch (e) {
-    console.error(e);
     return [];
   }
 }
