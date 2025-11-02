@@ -39,6 +39,7 @@ const debug = queryArgument("debug");
 const rootPath = queryArgument("path", false) || defaultRoot;
 const parentDepth = Number(queryArgument("depth", false)) || defaultParentDepth;
 const noProgress = queryArgument("no-progress");
+const blacklist = queryArgument("blacklist") ? queryArgument("blacklist", false).split(";") : [];
 const timeString = (new Date()).toLocaleTimeString("en-US", { hour12: false }).slice(0, -3);
 const allowDelete = queryArgument("allow-delete", false) === timeString;
 // Validate parameters
@@ -51,6 +52,7 @@ Options:
     --path <string>         Root path from which to look for files.
     --depth <number>        Depth from absolute root at which to split directory groups.
     --no-progress           Don't save/load current world progress to/from disk.
+    --blacklist <path;...>  Semicolon-separted paths to blacklist from the scan.
 
     --allow-delete <hh:mm>  Enables actually deleting files when blocks are altered.
                             For confirmation, requires current system time in 24h format.
@@ -151,7 +153,7 @@ if (!noProgress && fs.existsSync(mappingJSONPath)) {
 } else {
 
   console.log(`Searching for files within "${rootPath}"...`);
-  const fileList = fileTools.buildFileList(rootPath);
+  const fileList = fileTools.buildFileList(path.resolve(rootPath), blacklist);
   console.log(`Found ${fileList.length} files.\n`);
 
   console.log(`Generating terrain...`);

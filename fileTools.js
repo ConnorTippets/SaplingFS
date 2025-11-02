@@ -4,7 +4,7 @@ const path = require("node:path");
 class MappedFile {
 
   constructor (fullPath, size, depth) {
-    this.path = path.normalize(fullPath);
+    this.path = path.resolve(fullPath);
     this.size = size;
     this.depth = depth;
   }
@@ -31,12 +31,13 @@ class MappedFile {
  * bytes, and depth from the starting directory.
  *
  * @param {string} startPath - Directory from which to begin recursing
+ * @param {string[]} blacklist - List of paths to omit from the scan
  * @param {array} [list=[]] - List to append to in each iteration
  * @param {number} [depth=0] - Starting depth, tracked internally
  *
  * @return {MappedFile[]} List of found files
  */
-function buildFileList (startPath, list = [], depth = 0) {
+function buildFileList (startPath, blacklist = [], list = [], depth = 0) {
   try {
 
     const items = fs.readdirSync(startPath, { withFileTypes: true });
@@ -45,7 +46,8 @@ function buildFileList (startPath, list = [], depth = 0) {
       const itemPath = path.join(startPath, item.name);
       if (!item.isDirectory()) continue;
       if (item.name.includes("cache")) continue;
-      buildFileList(itemPath, list, depth + 1);
+      if (blacklist.includes(itemPath)) continue;
+      buildFileList(itemPath, blacklist, list, depth + 1);
     }
 
     for (const item of items) {
