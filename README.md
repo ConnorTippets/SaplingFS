@@ -15,7 +15,7 @@ In other words: every block in-game is mapped to a file on your computer. Breaki
    - If you're on **Linux**, you'll want [`SaplingFS-linux`](https://github.com/p2r3/SaplingFS/releases/download/latest/SaplingFS-linux).
 2. Open a terminal shell.
    - **On Windows**: Go to the folder where you downloaded `SaplingFS-windows.exe`. Hold Shift and right-click anywhere in the folder. You should see an option to open PowerShell - click that.
-   - **On Linux**: You probably already know how to open a terminal. In most file browsers, F4 opens one in the current directory. You'll likely have to run `chmod +x SaplingFS-linux` to make the file executable.
+   - **On Linux**: You probably already know how to open a terminal. In most file browsers, F4 opens one in the current directory. You'll likely have to run `chmod +x SaplingFS-linux` to make the file executable. This program depends on the `lsof` and `xsel` tools, so make sure you have those installed too.
 3. Create a new Minecraft void world.
    - Any relatively modern Minecraft version should work, though this has been tested most thoroughly on 1.21.10.
    - To create a _void world_, go into the "World" tab, switch "World Type" to "Superflat", click "Customize", click "Presets", and select "The Void".
@@ -28,9 +28,9 @@ In other words: every block in-game is mapped to a file on your computer. Breaki
 6. In the terminal window you opened earlier:
    - **On Windows**: type `.\SaplingFS-windows.exe "saplingfs_world"`
    - **On Linux**: type `./SaplingFS-linux "saplingfs_world"`
+     - If your Minecraft installation is in a non-standard location (such as when using a third-party launcher), you can provide an absolute path to the world folder instead of the world name.
      - This will begin scanning your filesystem and generating terrain from it. The world you chose will be backed up before the new chunks get injected. Once this process has finished, you should see a message claiming that it's listening for clipboard changes and block changes. **If you see mentions of deleted files**, do not worry. Unless you've explicitly allowed the program to delete files, these messages are purely cosmetic.
      - You can stop the program by pressing `Ctrl + C`. The next time you run this same command, the program will attempt to "continue" where you last left off. If you instead want to generate new terrain, either delete the `mapping` folder beside the program binary, or add `--no-progress` to the end of the command.
-     - If your Minecraft installation is in a non-standard location (such as when using a third-party launcher), you can provide an absolute path to the world folder instead of the world name.
 
 For a more succinct usage guide, run the program without any arguments.
 
