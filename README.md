@@ -30,6 +30,7 @@ In other words: every block in-game is mapped to a file on your computer. Breaki
    - **On Linux**: type `./SaplingFS-linux "saplingfs_world"`
      - This will begin scanning your filesystem and generating terrain from it. The world you chose will be backed up before the new chunks get injected. Once this process has finished, you should see a message claiming that it's listening for clipboard changes and block changes. **If you see mentions of deleted files**, do not worry. Unless you've explicitly allowed the program to delete files, these messages are purely cosmetic.
      - You can stop the program by pressing `Ctrl + C`. The next time you run this same command, the program will attempt to "continue" where you last left off. If you instead want to generate new terrain, either delete the `mapping` folder beside the program binary, or add `--no-progress` to the end of the command.
+     - If your Minecraft installation is in a non-standard location (such as when using a third-party launcher), you can provide an absolute path to the world folder instead of the world name.
 
 For a more succinct usage guide, run the program without any arguments.
 
