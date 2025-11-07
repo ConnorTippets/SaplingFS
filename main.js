@@ -102,7 +102,7 @@ if (allowDelete) {
   });
 }
 
-const { mapping } = worldGenTools;
+const { mapping, writeMappingToDisk } = worldGenTools;
 
 const cwd = process.cwd();
 try { fs.mkdirSync(`${cwd}/mapping`) } catch { }

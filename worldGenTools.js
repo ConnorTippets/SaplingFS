@@ -559,5 +559,6 @@ module.exports = {
   mapping,
   buildRegionData,
   forMappedChunks,
+  writeMappingToDisk,
   terrainBounds
 };
